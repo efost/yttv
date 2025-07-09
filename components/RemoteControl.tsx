@@ -31,6 +31,15 @@ interface RemoteControlProps {
   isMuted: boolean;
   captionsEnabled: boolean;
   usingSampleVideos?: boolean;
+  // History props
+  videoHistory?: Array<{
+    video: VideoItem;
+    timestamp: number;
+    lastPosition: number;
+    completed: boolean;
+    duration?: number;
+  }>;
+  currentIndex?: number;
   // Auth props
   isAuthenticated: boolean;
   onSignIn: () => void;
@@ -52,6 +61,8 @@ export default function RemoteControl({
   isMuted,
   captionsEnabled,
   usingSampleVideos,
+  videoHistory,
+  currentIndex,
   isAuthenticated,
   onSignIn,
   onSignOut,

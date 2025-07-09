@@ -8,9 +8,18 @@ import { VideoItem } from "@/types/youtube";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 
+// Enhanced history item type
+interface HistoryItem {
+  video: VideoItem;
+  timestamp: number; // When this video was watched
+  lastPosition: number; // Last known position in seconds
+  completed: boolean; // Whether the video was watched to completion
+  duration?: number; // Video duration if available
+}
+
 export default function Home() {
   const [currentVideo, setCurrentVideo] = useState<VideoItem | null>(null);
-  const [videoHistory, setVideoHistory] = useState<VideoItem[]>([]);
+  const [videoHistory, setVideoHistory] = useState<HistoryItem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
   const [availableVideos, setAvailableVideos] = useState<VideoItem[]>([]);
@@ -20,15 +29,17 @@ export default function Home() {
   const [usingSampleVideos, setUsingSampleVideos] = useState(false);
   const [shouldRestorePosition, setShouldRestorePosition] = useState(false);
   const [watchedVideoIds, setWatchedVideoIds] = useState<string[]>([]);
-  const [isLoadingNextVideo, setIsLoadingNextVideo] = useState(false);
+  const [_, setIsLoadingNextVideo] = useState(false);
   const [prefetchedVideo, setPrefetchedVideo] = useState<VideoItem | null>(
     null
   );
   const [hasPrefetched, setHasPrefetched] = useState(false);
+  const [currentVideoStartTime, setCurrentVideoStartTime] = useState<number>(0);
+  // Track forward history - videos that come after current position
+  const [forwardHistory, setForwardHistory] = useState<VideoItem[]>([]);
 
   const { data: session, status } = useSession();
   const tvScreenRef = useRef<TVScreenRef | null>(null);
-  const prefetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize cache cleanup routine on mount
   useEffect(() => {
@@ -59,16 +70,17 @@ export default function Home() {
       }
     }
 
-    // Load session video queue
-    const savedQueue = sessionStorage.getItem("yttv-video-queue");
-    if (savedQueue) {
+    // Load enhanced video history
+    const savedHistory = sessionStorage.getItem("yttv-video-history");
+    if (savedHistory) {
       try {
-        const queue = JSON.parse(savedQueue);
-        setVideoHistory(queue.videoHistory || []);
-        setCurrentIndex(queue.currentIndex || -1);
-        setPrefetchedVideo(queue.prefetchedVideo || null);
+        const history = JSON.parse(savedHistory);
+        setVideoHistory(history.videoHistory || []);
+        setCurrentIndex(history.currentIndex || -1);
+        setPrefetchedVideo(history.prefetchedVideo || null);
+        setForwardHistory(history.forwardHistory || []);
       } catch (error) {
-        // Silently handle video queue parsing errors
+        // Silently handle video history parsing errors
       }
     }
   }, []);
@@ -85,34 +97,60 @@ export default function Home() {
     localStorage.setItem("yttv-watched-ids", JSON.stringify(watchedVideoIds));
   }, [watchedVideoIds]);
 
-  // Save video queue to sessionStorage
+  // Save enhanced video history to sessionStorage
   useEffect(() => {
-    const queue = {
+    const history = {
       videoHistory,
       currentIndex,
       prefetchedVideo,
+      forwardHistory,
       timestamp: Date.now(),
     };
-    sessionStorage.setItem("yttv-video-queue", JSON.stringify(queue));
-  }, [videoHistory, currentIndex, prefetchedVideo]);
+    sessionStorage.setItem("yttv-video-history", JSON.stringify(history));
+  }, [videoHistory, currentIndex, prefetchedVideo, forwardHistory]);
 
-  // Save video position periodically
+  // Enhanced position tracking - save more frequently and track completion
   useEffect(() => {
     if (!currentVideo) return;
 
     const savePosition = () => {
       if (tvScreenRef.current) {
         const currentTime = tvScreenRef.current.getCurrentTime();
+        const playerState = tvScreenRef.current.getPlayerState();
+
         if (currentTime > 0) {
+          // Save position to localStorage
           localStorage.setItem(
             `yttv-position-${currentVideo.id}`,
             currentTime.toString()
           );
+
+          // Update history item with current position
+          setVideoHistory((prev) => {
+            const newHistory = [...prev];
+            const currentHistoryIndex = newHistory.findIndex(
+              (item) => item.video.id === currentVideo.id
+            );
+
+            if (currentHistoryIndex !== -1) {
+              // Check if video is near completion (within 10 seconds of end)
+              const isNearEnd =
+                currentTime >=
+                (newHistory[currentHistoryIndex].duration || 0) - 10;
+              newHistory[currentHistoryIndex] = {
+                ...newHistory[currentHistoryIndex],
+                lastPosition: currentTime,
+                completed: isNearEnd || playerState === 0, // 0 = ENDED
+              };
+            }
+
+            return newHistory;
+          });
         }
       }
     };
 
-    const interval = setInterval(savePosition, 5000); // Save every 5 seconds
+    const interval = setInterval(savePosition, 2000); // Save every 2 seconds
     return () => clearInterval(interval);
   }, [currentVideo]);
 
@@ -145,35 +183,91 @@ export default function Home() {
     }
   }, [currentVideo?.id]);
 
-  // Restore video position when video changes
+  // Enhanced position restoration with completion logic
   useEffect(() => {
     if (currentVideo && tvScreenRef.current && shouldRestorePosition) {
       const savedPosition = localStorage.getItem(
         `yttv-position-${currentVideo.id}`
       );
-      if (savedPosition) {
+
+      // Check if this video exists in history
+      const historyItem = videoHistory.find(
+        (item) => item.video.id === currentVideo.id
+      );
+
+      if (historyItem) {
+        if (historyItem.completed) {
+          // If video was completed, start from a random position
+          const randomStart = Math.floor(Math.random() * 200); // Random start within first 200 seconds
+          setTimeout(() => {
+            tvScreenRef.current?.seekTo(randomStart);
+            setCurrentVideoStartTime(randomStart);
+          }, 1000);
+        } else {
+          // If video wasn't completed, restore the last position
+          const position =
+            historyItem.lastPosition || parseFloat(savedPosition || "0");
+          if (position > 10) {
+            setTimeout(() => {
+              tvScreenRef.current?.seekTo(position);
+              setCurrentVideoStartTime(position);
+            }, 1000);
+          }
+        }
+      } else if (savedPosition) {
+        // Fallback to localStorage position
         const position = parseFloat(savedPosition);
         if (position > 10) {
           setTimeout(() => {
             tvScreenRef.current?.seekTo(position);
-          }, 1000); // Wait for player to be ready
+            setCurrentVideoStartTime(position);
+          }, 1000);
         }
       }
+
       setShouldRestorePosition(false);
     }
-  }, [currentVideo, shouldRestorePosition]);
+  }, [currentVideo, shouldRestorePosition, videoHistory]);
 
   // Fetch next video from API
   const fetchNextVideo = async (): Promise<VideoItem | null> => {
     if (usingSampleVideos) {
-      // For sample videos, just pick a random one
-      const availableUnwatched = sampleVideos.filter(
+      // Get recently watched videos (last 3) to avoid immediate repeats
+      const recentWatched = watchedVideoIds.slice(-3);
+
+      // Filter out recently watched videos and current video
+      const excludedIds = [...recentWatched];
+      if (currentVideo) {
+        excludedIds.push(currentVideo.id);
+      }
+      if (prefetchedVideo) {
+        excludedIds.push(prefetchedVideo.id);
+      }
+
+      const availableVideos = sampleVideos.filter(
+        (video) => !excludedIds.includes(video.id)
+      );
+
+      // If we've watched most videos, reset the exclusion list but keep current video excluded
+      const videosToChooseFrom =
+        availableVideos.length > 0
+          ? availableVideos
+          : sampleVideos.filter((video) => video.id !== currentVideo?.id);
+
+      // Use weighted randomization to favor unwatched videos
+      const unwatchedVideos = videosToChooseFrom.filter(
         (video) => !watchedVideoIds.includes(video.id)
       );
-      const videosToChooseFrom =
-        availableUnwatched.length > 0 ? availableUnwatched : sampleVideos;
-      const randomIndex = Math.floor(Math.random() * videosToChooseFrom.length);
-      return videosToChooseFrom[randomIndex];
+
+      // 70% chance to pick from unwatched, 30% chance to pick from all available
+      const shouldPickUnwatched =
+        Math.random() < 0.7 && unwatchedVideos.length > 0;
+      const finalCandidates = shouldPickUnwatched
+        ? unwatchedVideos
+        : videosToChooseFrom;
+
+      const randomIndex = Math.floor(Math.random() * finalCandidates.length);
+      return finalCandidates[randomIndex];
     }
 
     try {
@@ -219,7 +313,26 @@ export default function Home() {
 
     try {
       if (currentVideo) {
-        const newHistory = [...videoHistory, currentVideo];
+        // Add current video to history with completion status
+        const currentTime = tvScreenRef.current?.getCurrentTime() || 0;
+        const playerState = tvScreenRef.current?.getPlayerState() || 0;
+        const isCompleted =
+          playerState === 0 ||
+          currentTime >=
+            (currentVideo.duration ? parseDuration(currentVideo.duration) : 0) -
+              10;
+
+        const historyItem: HistoryItem = {
+          video: currentVideo,
+          timestamp: Date.now(),
+          lastPosition: currentTime,
+          completed: isCompleted,
+          duration: currentVideo.duration
+            ? parseDuration(currentVideo.duration)
+            : undefined,
+        };
+
+        const newHistory = [...videoHistory, historyItem];
         setVideoHistory(newHistory);
         setCurrentIndex(newHistory.length);
 
@@ -229,19 +342,29 @@ export default function Home() {
         }
       }
 
-      // Use prefetched video if available, otherwise fetch new one
+      // Check if we have a forward history to continue from
       let nextVideo: VideoItem | null = null;
 
-      if (prefetchedVideo && !watchedVideoIds.includes(prefetchedVideo.id)) {
+      if (forwardHistory.length > 0) {
+        // Continue from forward history
+        nextVideo = forwardHistory[0];
+        setForwardHistory((prev) => prev.slice(1)); // Remove the video we're about to show
+      } else if (
+        prefetchedVideo &&
+        !watchedVideoIds.includes(prefetchedVideo.id)
+      ) {
+        // Use prefetched video if available
         nextVideo = prefetchedVideo;
-        setPrefetchedVideo(null); // Clear the prefetched video
+        setPrefetchedVideo(null);
       } else {
+        // Fetch new video
         nextVideo = await fetchNextVideo();
       }
 
       if (nextVideo) {
         setCurrentVideo(nextVideo);
         setShouldRestorePosition(false);
+        setCurrentVideoStartTime(0);
       } else {
         //
       }
@@ -254,11 +377,30 @@ export default function Home() {
 
   const handleChannelDown = () => {
     if (currentIndex > 0) {
-      const previousVideo = videoHistory[currentIndex - 1];
-      setCurrentVideo(previousVideo);
+      const previousHistoryItem = videoHistory[currentIndex - 1];
+
+      // Add current video to forward history if it exists
+      if (currentVideo) {
+        setForwardHistory((prev) => [currentVideo, ...prev]);
+      }
+
+      setCurrentVideo(previousHistoryItem.video);
       setCurrentIndex(currentIndex - 1);
       setShouldRestorePosition(true);
+      setCurrentVideoStartTime(previousHistoryItem.lastPosition);
     }
+  };
+
+  // Helper function to parse YouTube duration format
+  const parseDuration = (duration: string): number => {
+    const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+    if (!match) return 0;
+
+    const hours = parseInt(match[1]?.replace("H", "") || "0");
+    const minutes = parseInt(match[2]?.replace("M", "") || "0");
+    const seconds = parseInt(match[3]?.replace("S", "") || "0");
+
+    return hours * 3600 + minutes * 60 + seconds;
   };
 
   const handlePlayPause = () => {
@@ -461,6 +603,8 @@ export default function Home() {
               isMuted={isMuted}
               captionsEnabled={captionsEnabled}
               usingSampleVideos={usingSampleVideos}
+              videoHistory={videoHistory}
+              currentIndex={currentIndex}
               isAuthenticated={status === "authenticated"}
               onSignIn={() => signIn("google")}
               onSignOut={() => signOut()}
