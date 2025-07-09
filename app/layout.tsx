@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "YT TV - YouTube Remote Control",
+  title: "VibeTV - YouTube Remote Control",
   description: "Control YouTube like an old-school TV remote",
 };
 

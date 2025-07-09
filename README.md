@@ -1,4 +1,4 @@
-# YT TV - YouTube Remote Control
+# VibeTV - YouTube Remote Control
 
 A web application that lets you control YouTube like an old-school TV remote control. Navigate through videos using channel up/down buttons, control playback with classic remote buttons, and experience YouTube in a nostalgic TV format.
 
