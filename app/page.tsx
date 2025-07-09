@@ -395,8 +395,25 @@ export default function Home() {
   }, [status, session]);
 
   return (
-    <main className="min-h-screen bg-tv-black p-4">
-      <div className="max-w-6xl mx-auto">
+    <main className="min-h-screen bg-tv-black p-4 flex items-center justify-center relative overflow-hidden">
+      {/* Logo Background */}
+      {/* <div className="absolute inset-0 flex items-start  justify-center pointer-events-none z-10">
+        <div
+          className="text-white font-tv text-[200px] leading-none select-none tracking-tight"
+          style={{
+            background:
+              "linear-gradient(to top, transparent 0%, #020202 10%, white 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            filter: "blur(0.5px)",
+          }}
+        >
+          VibeTV
+        </div>
+      </div> */}
+
+      <div className="w-full max-w-6xl relative z-20">
         <div className="flex justify-between items-center mb-4">
           {usingSampleVideos && status === "authenticated" && (
             <div className="text-yellow-300 py-2 rounded-lg backdrop-blur-sm text-xs">

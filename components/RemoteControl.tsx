@@ -71,7 +71,7 @@ export default function RemoteControl({
     children,
     onClick,
     className = "",
-    color = "bg-gradient-to-b from-gray-700 to-gray-800",
+    color = "bg-gradient-to-b from-neutral-700 to-neutral-800",
     disabled = false,
   }: {
     children: React.ReactNode;
@@ -101,7 +101,7 @@ export default function RemoteControl({
         onMouseUp={handleMouseUp}
         onMouseLeave={() => setIndicatorLight(false)} // Turn off if mouse leaves button
         disabled={disabled}
-        className={`remote-button ${color} hover:from-gray-600 hover:to-gray-700 text-white p-4 rounded-lg flex items-center justify-center transition-all duration-100 shadow-md ${className} ${
+        className={`remote-button ${color} hover:from-neutral-600 hover:to-neutral-700 text-white p-4 rounded-lg flex items-center justify-center transition-all duration-100 shadow-md ${className} ${
           disabled ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
@@ -112,7 +112,7 @@ export default function RemoteControl({
 
   return (
     <>
-      <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-6 rounded-xl shadow-2xl">
+      <div className="bg-gradient-to-b from-neutral-800 to-neutral-900 p-6 rounded-xl shadow-2xl">
         {/* Indicator Light */}
         <div className="flex justify-center mb-6">
           <div className="relative">
@@ -218,7 +218,7 @@ export default function RemoteControl({
           </RemoteButton>
         </div>
 
-        <div className="text-white text-md font-bold text-center tracking-wider">
+        <div className="text-white/30 text-md text-center tracking-tight">
           VibeTV
         </div>
       </div>

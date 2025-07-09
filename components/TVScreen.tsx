@@ -561,18 +561,32 @@ const TVScreen = memo(
       if (isLoading) {
         return (
           <div className="space-y-4">
-            {/* TV Bezel */}
-            <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-3 pb-6 rounded-xl shadow-2xl">
-              {/* Screen Area */}
-              <div className="tv-screen aspect-video w-full bg-black rounded-lg flex items-center justify-center mb-4">
-                <div className="text-white text-2xl font-tv">
-                  Loading Channel...
+            {/* TV Bezel with Glow Effect */}
+            <div className="relative">
+              {/* Animated Glow */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/40 via-purple-400/40 to-blue-400/40 rounded-2xl blur-3xl animate-pulse"></div>
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-blue-300/25 via-purple-300/25 to-blue-300/25 rounded-2xl blur-2xl animate-pulse"
+                style={{ animationDelay: "0.5s" }}
+              ></div>
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-blue-200/15 via-purple-200/15 to-blue-200/15 rounded-2xl blur-xl animate-pulse"
+                style={{ animationDelay: "1s" }}
+              ></div>
+
+              {/* TV Bezel */}
+              <div className="bg-gradient-to-b from-neutral-800 to-neutral-900 p-3 pb-6 rounded-xl shadow-2xl relative z-10">
+                {/* Screen Area */}
+                <div className="tv-screen aspect-video w-full bg-black rounded-lg flex items-center justify-center mb-4">
+                  <div className="text-white text-2xl font-tv">
+                    Loading Channel...
+                  </div>
                 </div>
-              </div>
-              {/* Bottom Bezel with Branding */}
-              <div className="flex justify-center">
-                <div className="text-white text-lg font-bold tracking-wider">
-                  VibeTV
+                {/* Bottom Bezel with Branding */}
+                <div className="flex justify-center">
+                  <div className="text-white/30 text-lg tracking-tight">
+                    VibeTV
+                  </div>
                 </div>
               </div>
             </div>
@@ -583,16 +597,30 @@ const TVScreen = memo(
       if (!currentVideo) {
         return (
           <div className="space-y-4">
-            {/* TV Bezel */}
-            <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-3 pb-6 rounded-xl shadow-2xl">
-              {/* Screen Area */}
-              <div className="tv-screen aspect-video w-full bg-black rounded-lg flex items-center justify-center mb-4">
-                <div className="text-white text-2xl font-tv">No Signal</div>
-              </div>
-              {/* Bottom Bezel with Branding */}
-              <div className="flex justify-center">
-                <div className="text-white text-lg font-bold tracking-wider">
-                  VibeTV
+            {/* TV Bezel with Glow Effect */}
+            <div className="relative">
+              {/* Animated Glow */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/40 via-purple-400/40 to-blue-400/40 rounded-2xl blur-3xl animate-pulse"></div>
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-blue-300/25 via-purple-300/25 to-blue-300/25 rounded-2xl blur-2xl animate-pulse"
+                style={{ animationDelay: "0.5s" }}
+              ></div>
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-blue-200/15 via-purple-200/15 to-blue-200/15 rounded-2xl blur-xl animate-pulse"
+                style={{ animationDelay: "1s" }}
+              ></div>
+
+              {/* TV Bezel */}
+              <div className="bg-gradient-to-b from-neutral-800 to-neutral-900 p-3 pb-6 rounded-xl shadow-2xl relative z-10">
+                {/* Screen Area */}
+                <div className="tv-screen aspect-video w-full bg-black rounded-lg flex items-center justify-center mb-4">
+                  <div className="text-white text-2xl font-tv">No Signal</div>
+                </div>
+                {/* Bottom Bezel with Branding */}
+                <div className="flex justify-center">
+                  <div className="text-white/30 text-lg tracking-tight">
+                    VibeTV
+                  </div>
                 </div>
               </div>
             </div>
@@ -602,35 +630,51 @@ const TVScreen = memo(
 
       return (
         <div className="space-y-4">
-          {/* TV Bezel */}
-          <div className="bg-gradient-to-b from-gray-800 to-gray-900 p-3 pb-6 rounded-xl shadow-2xl">
-            {/* Screen Area */}
-            <div className="tv-screen aspect-video w-full bg-black rounded-lg overflow-hidden relative mb-4">
-              {/* Static overlay */}
-              {showStatic && <div className="absolute inset-0 z-10 bg-noise" />}
+          {/* TV Bezel with Glow Effect */}
+          <div className="relative">
+            {/* Animated Glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/40 via-purple-400/40 to-blue-400/40 rounded-2xl blur-3xl animate-pulse"></div>
+            <div
+              className="absolute inset-0 bg-gradient-to-r from-blue-300/25 via-purple-300/25 to-blue-300/25 rounded-2xl blur-2xl animate-pulse"
+              style={{ animationDelay: "0.5s" }}
+            ></div>
+            <div
+              className="absolute inset-0 bg-gradient-to-r from-blue-200/15 via-purple-200/15 to-blue-200/15 rounded-2xl blur-xl animate-pulse"
+              style={{ animationDelay: "1s" }}
+            ></div>
 
-              {/* Video player container - managed by ref to prevent React interference */}
-              <div
-                ref={playerContainerRef}
-                className="absolute inset-0 w-full h-full"
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                }}
-              />
-            </div>
-            {/* Bottom Bezel with Branding */}
-            <div className="flex justify-center">
-              <div className="text-white text-lg font-bold tracking-wider">
-                VibeTV
+            {/* TV Bezel */}
+            <div className="bg-gradient-to-b from-neutral-800 to-neutral-900 p-3 pb-6 rounded-xl shadow-2xl relative z-10">
+              {/* Screen Area */}
+              <div className="tv-screen aspect-video w-full bg-black rounded-lg overflow-hidden relative mb-4">
+                {/* Static overlay */}
+                {showStatic && (
+                  <div className="absolute inset-0 z-10 bg-noise" />
+                )}
+
+                {/* Video player container - managed by ref to prevent React interference */}
+                <div
+                  ref={playerContainerRef}
+                  className="absolute inset-0 w-full h-full"
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+              </div>
+              {/* Bottom Bezel with Branding */}
+              <div className="flex justify-center">
+                <div className="text-white/30 text-lg tracking-tight">
+                  VibeTV
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-remote-gray p-4 rounded-lg">
+          <div className="p-4 rounded-lg border border-neutral-800">
             <h3 className="text-white font-bold text-lg mb-2">
               <a
                 href={`https://www.youtube.com/watch?v=${currentVideo.id}`}
