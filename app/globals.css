@@ -1,0 +1,50 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-tv: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --color-tv-black: #020202;
+  --color-remote-red: #ff4444;
+  --color-remote-gray: #2a2a2a;
+  --color-button-gray: #404040;
+}
+
+/* :root {
+  --remote-red: #dc2626;
+  --remote-gray: #a1a1a1;
+  --button-gray: #4b5563;
+  --tv-black: #020202;
+} */
+
+.remote-button {
+  transition: all 0.1s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.remote-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.tv-screen {
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+  border: 2px solid #1f2937;
+}
+
+/* Static noise effect */
+.bg-noise {
+  background: repeating-radial-gradient(#000 0 0.0001%, #fff 0 0.0002%) 50% 0/2500px
+      2500px,
+    repeating-conic-gradient(#000 0 0.0001%, #fff 0 0.0002%) 60% 60%/2500px
+      2500px;
+  background-blend-mode: difference;
+  animation: static-flicker 0.2s infinite alternate;
+}
+
+@keyframes static-flicker {
+  100% {
+    background-position: 50% 0, 60% 50%;
+  }
+}

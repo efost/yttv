@@ -1,0 +1,31 @@
+{
+  "name": "yttv",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.16",
+    "googleapis": "^128.0.0",
+    "lucide-react": "^0.525.0",
+    "next": "14.0.4",
+    "next-auth": "^4.24.5",
+    "postcss": "^8.4.32",
+    "react": "^18",
+    "react-dom": "^18",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "14.0.4"
+  }
+}
