@@ -359,7 +359,16 @@ export default function Home() {
         }
       }
 
-      if (status === "unauthenticated" || quotaError) {
+      if (quotaError) {
+        // Only show quota exceeded message when there's an actual API error
+        setUsingSampleVideos(true);
+        if (!currentVideo) {
+          const randomIndex = Math.floor(Math.random() * sampleVideos.length);
+          setCurrentVideo(sampleVideos[randomIndex]);
+          setShouldRestorePosition(false);
+        }
+      } else if (status === "unauthenticated") {
+        // When not authenticated, use sample videos but don't show quota message
         setUsingSampleVideos(true);
         if (!currentVideo) {
           const randomIndex = Math.floor(Math.random() * sampleVideos.length);
@@ -389,7 +398,7 @@ export default function Home() {
     <main className="min-h-screen bg-tv-black p-4">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-4">
-          {usingSampleVideos && (
+          {usingSampleVideos && status === "authenticated" && (
             <div className="text-yellow-300 py-2 rounded-lg backdrop-blur-sm text-xs">
               <span className="text-xs pr-1">⚠️</span> YouTube API Quota
               Exceeded - Using sample videos

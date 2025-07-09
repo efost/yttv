@@ -223,7 +223,7 @@ export default function RemoteControl({
         </div>
       </div>
       {/* Quota Warning */}
-      {usingSampleVideos && (
+      {usingSampleVideos && isAuthenticated && (
         <div className="mb-6 p-4 rounded-lg backdrop-blur-sm">
           <div className="text-gray-300 text-sm text-center space-y-1">
             <div className="flex items-center justify-center gap-2">
