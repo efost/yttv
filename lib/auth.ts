@@ -30,6 +30,12 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  // Add this to ensure NextAuth works with basePath
+  pages: {
+    signIn: "/auth/signin",
+    signOut: "/auth/signout",
+    error: "/auth/error",
+  },
 };
 
 export default NextAuth(authOptions);
