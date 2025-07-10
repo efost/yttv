@@ -32,9 +32,9 @@ export const authOptions: NextAuthOptions = {
   },
   // Add this to ensure NextAuth works with basePath
   pages: {
-    signIn: "/auth/signin",
-    signOut: "/auth/signout",
-    error: "/auth/error",
+    signIn: "/yttv/auth/signin",
+    signOut: "/yttv/auth/signout",
+    error: "/yttv/auth/error",
   },
 };
 
