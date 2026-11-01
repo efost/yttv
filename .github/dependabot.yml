@@ -1,0 +1,16 @@
+# Dependabot: weekly dependency updates, grouped into one PR.
+# Security fixes arrive as soon as an advisory is published, as long as
+# "Dependabot security updates" is on in Settings → Code security.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: America/Los_Angeles
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
